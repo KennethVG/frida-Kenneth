@@ -14,7 +14,7 @@ import java.util.Map;
 class JdbcGastenboekRepository implements GastenboekRepository {
     private final JdbcTemplate template;
     private final RowMapper<GastenboekEntry> gastenBoekMapper =
-            (result, rowNum) -> new GastenboekEntry(result.getDate("datum").toLocalDate(), result.getString("naam"), result.getString("boodschap"));
+            (result, rowNum) -> new GastenboekEntry(result.getString("naam"), result.getDate("datum").toLocalDate(), result.getString("boodschap"));
     private final SimpleJdbcInsert simpleJdbcInsert;
 
     public JdbcGastenboekRepository(JdbcTemplate template) {
@@ -26,6 +26,7 @@ class JdbcGastenboekRepository implements GastenboekRepository {
     @Override
     public void toevoegen(GastenboekEntry entry) {
         Map<String, Object> kolommen = new HashMap<>();
+        kolommen.put("id", entry.getId());
         kolommen.put("datum", entry.getDatum());
         kolommen.put("naam", entry.getNaam());
         kolommen.put("boodschap", entry.getBoodschap());
@@ -34,7 +35,7 @@ class JdbcGastenboekRepository implements GastenboekRepository {
 
     @Override
     public List<GastenboekEntry> findAll() {
-        String sql="select datum,naam,boodschap from gastenboekentries order by datum desc";
+        String sql = "select * from gastenboekentries order by datum desc";
         return template.query(sql, gastenBoekMapper);
     }
 }
